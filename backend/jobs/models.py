@@ -20,6 +20,7 @@ class CandidateProfile(models.Model):
     phone = models.CharField(max_length=50, blank=True)
     city = models.CharField(max_length=120, blank=True)
     role = models.ForeignKey(JobRole, on_delete=models.PROTECT, null=True, blank=True, related_name="profiles")
+    roles = models.ManyToManyField(JobRole, blank=True, related_name="candidate_profiles")
     years_experience = models.PositiveIntegerField(default=0)
     availability = models.CharField(max_length=120, blank=True)
     bio = models.TextField(blank=True)

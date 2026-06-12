@@ -20,7 +20,16 @@ class JobRoleAdmin(admin.ModelAdmin):
 
 @admin.register(CandidateProfile)
 class CandidateProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "first_name", "last_name", "city", "role", "years_experience")
+    list_display = ("user", "first_name", "last_name", "city", "primary_role", "years_experience")
+    filter_horizontal = ("roles",)
+
+    def primary_role(self, obj):
+        if obj.role_id:
+            return obj.role.name
+        first_role = obj.roles.first()
+        return first_role.name if first_role else ""
+
+    primary_role.short_description = "Rubro principal"
 
 
 @admin.register(WorkExperience)

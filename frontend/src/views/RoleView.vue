@@ -8,6 +8,7 @@ const loading = ref(true)
 const error = ref('')
 const groups = ref([])
 const searchTerm = ref('')
+const selectedCity = ref('all')
 
 function rubroSlug(rubro) {
   return rubro
@@ -55,17 +56,34 @@ const currentGroup = computed(() => {
   return groups.value.find((group) => rubroSlug(group.rubro) === route.params.slug)
 })
 
+const availableCities = computed(() => {
+  const cities = new Set()
+  for (const worker of currentGroup.value?.workers || []) {
+    const city = (worker.city || '').trim()
+    if (city) {
+      cities.add(city)
+    }
+  }
+  return [...cities].sort((a, b) => a.localeCompare(b, 'es'))
+})
+
 const filteredWorkers = computed(() => {
   if (!currentGroup.value) {
     return []
   }
 
-  const term = searchTerm.value.trim().toLowerCase()
-  if (!term) {
-    return currentGroup.value.workers
+  let workers = currentGroup.value.workers
+
+  if (selectedCity.value !== 'all') {
+    workers = workers.filter((worker) => (worker.city || '').trim() === selectedCity.value)
   }
 
-  return currentGroup.value.workers.filter((worker) => worker.full_name.toLowerCase().includes(term))
+  const term = searchTerm.value.trim().toLowerCase()
+  if (!term) {
+    return workers
+  }
+
+  return workers.filter((worker) => worker.full_name.toLowerCase().includes(term))
 })
 
 function sanitizePhone(phone) {
@@ -122,6 +140,16 @@ onMounted(fetchWorkersByRole)
         <label class="search-label">
           Buscar trabajador en este rubro
           <input v-model="searchTerm" type="search" placeholder="Ej: Maria Gomez" />
+          <small class="field-hint">Ejemplo de búsqueda dentro del rubro.</small>
+        </label>
+        <label class="search-label">
+          Filtrar por ciudad
+          <select v-model="selectedCity">
+            <option value="all">Todas las ciudades</option>
+            <option v-for="city in availableCities" :key="city" :value="city">
+              {{ city }}
+            </option>
+          </select>
         </label>
       </div>
 

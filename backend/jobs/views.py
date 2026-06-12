@@ -82,28 +82,32 @@ class PublicWorkersByRoleView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
-        profiles = CandidateProfile.objects.select_related("user", "role").filter(role__isnull=False).order_by("role__name", "last_name", "first_name")
+        profiles = CandidateProfile.objects.select_related("user", "role").prefetch_related("roles").all().order_by("last_name", "first_name")
         grouped = {}
 
         for profile in profiles:
-            role = profile.role.name
-            if role not in grouped:
-                grouped[role] = []
+            worker_roles = list(profile.roles.all()) or ([profile.role] if profile.role_id else [])
+            if not worker_roles:
+                continue
 
             full_name = f"{profile.first_name} {profile.last_name}".strip() or profile.user.username
-            grouped[role].append(
-                {
-                    "id": profile.id,
-                    "full_name": full_name,
-                    "personal_photo_url": request.build_absolute_uri(profile.personal_photo.url) if profile.personal_photo else "",
-                    "phone": profile.phone,
-                    "email": profile.user.email,
-                    "city": profile.city,
-                    "years_experience": profile.years_experience,
-                    "availability": profile.availability,
-                    "bio": profile.bio,
-                }
-            )
+            worker_payload = {
+                "id": profile.id,
+                "full_name": full_name,
+                "personal_photo_url": request.build_absolute_uri(profile.personal_photo.url) if profile.personal_photo else "",
+                "phone": profile.phone,
+                "email": profile.user.email,
+                "city": profile.city,
+                "years_experience": profile.years_experience,
+                "availability": profile.availability,
+                "bio": profile.bio,
+                "rubros": [role.name for role in worker_roles],
+            }
+
+            for role in worker_roles:
+                if role.name not in grouped:
+                    grouped[role.name] = []
+                grouped[role.name].append(worker_payload)
 
         response = [{"rubro": rubro, "workers": workers} for rubro, workers in grouped.items()]
         return Response(response)

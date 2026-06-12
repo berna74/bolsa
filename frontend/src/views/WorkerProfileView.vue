@@ -119,6 +119,7 @@ onMounted(fetchWorkersByRole)
         <div class="worker-profile-meta">
           <h2>{{ workerData.full_name }}</h2>
           <p><strong>Rubro:</strong> {{ formatRubroLabel(workerData.rubro) }}</p>
+            <p v-if="workerData.rubros?.length"><strong>También se registra en:</strong> {{ workerData.rubros.map(formatRubroLabel).join(', ') }}</p>
           <p><strong>Ciudad:</strong> {{ workerData.city || 'Ciudad no indicada' }}</p>
           <p><strong>Experiencia:</strong> {{ workerData.years_experience }} años</p>
           <p v-if="workerData.availability"><strong>Disponibilidad:</strong> {{ workerData.availability }}</p>

@@ -9,6 +9,7 @@ const groups = ref([])
 const route = useRoute()
 const router = useRouter()
 const selectedRubro = ref(null)
+const selectedCity = ref('all')
 
 const workerSearch = computed({
   get() {
@@ -42,6 +43,19 @@ const sortedGroups = computed(() => {
   })
 })
 
+const availableCities = computed(() => {
+  const cities = new Set()
+  for (const group of groups.value) {
+    for (const worker of group.workers || []) {
+      const city = (worker.city || '').trim()
+      if (city) {
+        cities.add(city)
+      }
+    }
+  }
+  return [...cities].sort((a, b) => a.localeCompare(b, 'es'))
+})
+
 const filteredGroups = computed(() => {
   let groups = sortedGroups.value
   
@@ -50,6 +64,15 @@ const filteredGroups = computed(() => {
     groups = groups.filter((g) => g.rubro === selectedRubro.value)
   }
   
+  if (selectedCity.value !== 'all') {
+    groups = groups
+      .map((group) => ({
+        ...group,
+        workers: group.workers.filter((worker) => (worker.city || '').trim() === selectedCity.value),
+      }))
+      .filter((group) => group.workers.length > 0)
+  }
+
   // Filtrar por búsqueda
   const term = searchTerm.value
   if (!term) {
@@ -168,17 +191,26 @@ onMounted(fetchWorkers)
   <section class="panel home-panel">
     <div class="home-header">
       <h2>Trabajadores registrados por rubro</h2>
-      <input
-        id="worker-search-input"
-        v-model="workerSearch"
-        type="search"
-        placeholder="Buscar trabajador. Ej: Juan Perez"
-        class="home-search-input"
-      />
+      <label class="home-search-shell" for="worker-search-input">
+        <span class="home-search-prefix">Buscar trabajador...</span>
+        <input
+          id="worker-search-input"
+          v-model="workerSearch"
+          type="search"
+          placeholder="Ej: Juan Perez"
+          class="home-search-input home-search-input-inline"
+        />
+      </label>
       <select v-model="selectedRubro" class="rubros-select" aria-label="Filtrar por rubro">
         <option :value="null">Todos los rubros</option>
         <option v-for="group in sortedGroups" :key="group.rubro" :value="group.rubro">
           {{ formatRubroLabel(group.rubro) }} ({{ group.workers.length }})
+        </option>
+      </select>
+      <select v-model="selectedCity" class="rubros-select" aria-label="Filtrar por ciudad">
+        <option value="all">Todas las ciudades</option>
+        <option v-for="city in availableCities" :key="city" :value="city">
+          {{ city }}
         </option>
       </select>
     </div>

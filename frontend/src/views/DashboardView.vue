@@ -22,7 +22,9 @@ const profile = ref({
   phone: '',
   city: '',
   role: null,
+  roles: [],
   role_name: '',
+  role_names: [],
   years_experience: 0,
   availability: '',
   bio: '',
@@ -85,6 +87,7 @@ async function fetchProfile() {
   loading.value = true
   try {
     const { data } = await api.get('/profile/')
+    data.roles = Array.isArray(data.roles) && data.roles.length ? data.roles : (data.role ? [data.role] : [])
     profile.value = data
   } catch {
     error.value = 'No se pudo cargar tu perfil.'
@@ -111,8 +114,16 @@ async function saveProfile() {
     payload.append('last_name', profile.value.last_name || '')
     payload.append('phone', profile.value.phone || '')
     payload.append('city', profile.value.city || '')
-    if (profile.value.role) {
-      payload.append('role', String(profile.value.role))
+    const selectedRoles = Array.isArray(profile.value.roles) && profile.value.roles.length
+      ? profile.value.roles
+      : (profile.value.role ? [profile.value.role] : [])
+
+    selectedRoles.forEach((roleId) => {
+      payload.append('roles', String(roleId))
+    })
+
+    if (selectedRoles.length) {
+      payload.append('role', String(selectedRoles[0]))
     }
     payload.append('years_experience', String(profile.value.years_experience ?? 0))
     payload.append('availability', profile.value.availability || '')
@@ -269,13 +280,16 @@ onMounted(fetchRoles)
           Ciudad
           <input v-model="profile.city" required />
         </label>
-        <label>
-          Rubro
-          <select v-model.number="profile.role" required>
-            <option :value="null" disabled>Seleccionar rubro</option>
-            <option v-for="roleItem in roles" :key="roleItem.id" :value="roleItem.id">{{ formatRubroLabel(roleItem.name) }}</option>
-          </select>
-        </label>
+        <div class="full-width roles-field">
+          <span>Rubros</span>
+          <div class="roles-checkboxes" role="group" aria-label="Rubros disponibles">
+            <label v-for="roleItem in roles" :key="roleItem.id" class="checkbox-label role-checkbox">
+              <input v-model="profile.roles" type="checkbox" :value="roleItem.id" />
+              {{ formatRubroLabel(roleItem.name) }}
+            </label>
+          </div>
+          <small class="field-hint">Podés seleccionar uno o varios rubros.</small>
+        </div>
         <label>
           Años de experiencia
           <input v-model.number="profile.years_experience" type="number" min="0" required />
