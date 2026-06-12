@@ -66,6 +66,23 @@ h3 {
   flex: 1 1 auto;
 }
 
+.top-strip-brand {
+  font-weight: 700;
+}
+
+.top-strip-brand-con,
+.top-strip-brand-gusto {
+  color: rgba(247, 168, 39, 1);
+}
+
+.top-strip-brand-todo {
+  color: #ffffff;
+}
+
+.top-strip-highlight {
+  color: rgba(247, 168, 39, 1);
+}
+
 .top-strip-search {
   justify-self: center;
   width: 100%;
@@ -138,9 +155,15 @@ h3 {
 }
 
 .top-strip .site-nav a {
-  color: #f0f0f0;
-  border-color: rgba(255, 255, 255, 0.28);
-  background: transparent;
+  color: rgba(247, 168, 39, 1);
+  border-color: rgba(247, 168, 39, 0.75);
+  background: #111111;
+}
+
+.top-strip .site-nav a:hover {
+  color: #111111;
+  border-color: #ffffff;
+  background: #ffffff;
 }
 
 .nav-icon-link {
@@ -156,9 +179,10 @@ h3 {
 }
 
 .top-strip .site-nav a.router-link-active {
-  border-color: #f0f0f0;
-  background: #f0f0f0;
+  border-color: #111111;
+  background: rgba(247, 168, 39, 1);
   color: #111111;
+  box-shadow: inset 0 0 0 1px #111111;
 }
 
 .main-content {

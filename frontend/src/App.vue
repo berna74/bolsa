@@ -8,7 +8,12 @@ import RubrosSidebar from './components/RubrosSidebar.vue'
     <div class="right-panel">
       <header>
         <div class="top-strip">
-          <span class="top-strip-title">ConTodoGusto | Bolsa de trabajo gastronómica</span>
+          <span class="top-strip-title">
+            <span class="top-strip-brand">
+              <span class="top-strip-brand-con">Con</span><span class="top-strip-brand-todo">Todo</span><span class="top-strip-brand-gusto">Gusto</span>
+            </span>
+            | Bolsa de <span class="top-strip-highlight">trabajo</span> gastronómica
+          </span>
           <nav class="site-nav" aria-label="Navegación principal">
             <router-link to="/">Inicio</router-link>
             <router-link to="/auth" class="nav-icon-link">
